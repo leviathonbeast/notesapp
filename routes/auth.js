@@ -5,7 +5,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { createUser, getUserByEmail, updateUser } = require('../services/userService');
+const { createUser, getUserByEmail, getUserById, updateUser } = require('../services/userService');
 const { createCategory } = require('../services/categoryService');
 const { JWT_SECRET } = require('../config/constants');
 const { authenticateToken } = require('../middleware/auth');
