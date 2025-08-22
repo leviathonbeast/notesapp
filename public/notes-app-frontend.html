@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Notes App</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --dark-bg: #34495e;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-color: #bdc3c7;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Auth Forms */
+        .auth-container {
+            max-width: 400px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        /* Main App Layout */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            min-height: 80vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .category-item, .filter-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .category-item:hover, .filter-item:hover {
+            background: var(--light-bg);
+        }
+
+        .category-item.active, .filter-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .category-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .search-bar {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+
+        /* Notes Grid */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .note-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .note-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .note-card.pinned {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .note-card.favorite {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .note-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .note-meta {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .note-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: white;
+        }
+
+        .note-content {
+            color: var(--text-light);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            max-height: 100px;
+            overflow: hidden;
+        }
+
+        .note-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .note-date {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .note-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: #d5dbdb;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        /* Admin Panel */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Tags */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            background: var(--light-bg);
+            color: var(--text-dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                order: 2;
+            }
+
+            .main-content {
+                order: 1;
+            }
+
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Loading spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Section -->
+    <div id="authSection">
+        <div class="auth-container">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Enhanced Notes App</h2>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="loginEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" required>
+                </div>
+                <button type="button" onclick="login()" class="btn btn-primary" style="width: 100%;">
+                    Login
+                </button>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form hidden">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="registerUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="registerEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="registerPassword" class="form-control" required>
+                </div>
+                <button type="button" onclick="register()" class="btn btn-primary" style="width: 100%;">
+                    Register
+                </button>
+            </div>
+
+            <div id="authAlert" class="alert alert-error hidden" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appSection" class="hidden">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">📝 Enhanced Notes</div>
+            <div class="user-info">
+                <span id="userWelcome">Welcome, User!</span>
+                <button id="adminBtn" class="btn btn-secondary btn-sm hidden" onclick="showAdminPanel()">Admin</button>
+                <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="app-layout">
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <div>
+                        <h3>Categories</h3>
+                        <div id="categoriesList">
+                            <div class="filter-item active" data-filter="all">
+                                📄 All Notes
+                                <span id="allNotesCount">0</span>
+                            </div>
+                            <div class="filter-item" data-filter="favorites">
+                                ❤️ Favorites
+                                <span id="favoritesCount">0</span>
+                            </div>
+                            <div class="filter-item" data-filter="archived">
+                                📦 Archived
+                                <span id="archivedCount">0</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="showCategoryModal()" style="width: 100%; margin-top: 1rem;">
+                            + Add Category
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <div class="content-header">
+                        <input type="text" id="searchInput" class="search-bar" placeholder="Search notes..." onkeyup="filterNotes()">
+                        <button class="btn btn-primary" onclick="showNoteModal()">
+                            + New Note
+                        </button>
+                    </div>
+
+                    <div id="notesGrid" class="notes-grid">
+                        <!-- Notes will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Modal -->
+    <div id="noteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="noteModalTitle">New Note</h3>
+                <button class="close-btn" onclick="closeNoteModal()">×</button>
+            </div>
+            <form id="noteForm">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" id="noteTitle" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="noteCategory" class="form-control">
+                        <option value="">No Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Content</label>
+                    <textarea id="noteContent" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tags (comma-separated)</label>
+                    <input type="text" id="noteTags" class="form-control" placeholder="work, personal, ideas">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="notePinned"> Pin this note
+                    </label>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeNoteModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">New Category</h3>
+                <button class="close-btn" onclick="closeCategoryModal()">×</button>
+            </div>
+            <form id="categoryForm">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" id="categoryName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Color</label>
+                    <input type="color" id="categoryColor" class="form-control" value="#3498db">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="categoryDescription" class="form-control" rows="3"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Admin Panel</h3>
+                <button class="close-btn" onclick="closeAdminModal()">×</button>
+            </div>
+            <div id="adminContent">
+                <!-- Admin content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let authToken = null;
+        let notes = [];
+        let categories = [];
+        let currentFilter = 'all';
+        let editingNote = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for saved auth token
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                authToken = token;
+                validateTokenAndLoadApp();
+            }
+
+            // Setup auth tabs
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchAuthTab(tabName);
+                });
+            });
+
+            // Setup filters
+            document.querySelectorAll('.filter-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    setFilter(filter);
+                });
+            });
+
+            // Setup forms
+            document.getElementById('noteForm').addEventListener('submit', saveNote);
+            document.getElementById('categoryForm').addEventListener('submit', saveCategory);
+        });
+
+        // Auth functions
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            
+            document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+            hideAlert();
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('authToken', authToken);
+                    showApp();
+                    loadData();
+                } else {
+                    showAlert(data.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error. Please try again.', 'error');
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('authToken', authToken);
+                    showApp();
+                    loadData();
+                } else {
+                    showAlert(data.error || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error. Please try again.', 'error');
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            showAuth();
+        }
+
+        async function validateTokenAndLoadApp() {
+            try {
+                const response = await fetch('/api/auth/profile', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    currentUser = await response.json();
+                    showApp();
+                    loadData();
+                } else {
+                    logout();
+                }
+            } catch (error) {
+                logout();
+            }
+        }
+
+        // UI functions
+        function showAuth() {
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('appSection').classList.add('hidden');
+        }
+
+        function showApp() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+            document.getElementById('userWelcome').textContent = `Welcome, ${currentUser.username}!`;
+            
+            if (currentUser.isAdmin) {
+                document.getElementById('adminBtn').classList.remove('hidden');
+            }
+        }
+
+        function showAlert(message, type = 'error') {
+            const alert = document.getElementById('authAlert');
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.classList.remove('hidden');
+            setTimeout(() => hideAlert(), 5000);
+        }
+
+        function hideAlert() {
+            document.getElementById('authAlert').classList.add('hidden');
+        }
+
+        // Data loading functions
+        async function loadData() {
+            await Promise.all([loadNotes(), loadCategories()]);
+            renderNotes();
+            renderCategories();
+        }
+
+        async function loadNotes() {
+            try {
+                const response = await fetch('/api/notes', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (response.ok) {
+                    notes = await response.json();
+                }
+            } catch (error) {
+                console.error('Error loading notes:', error);
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/categories', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (response.ok) {
+                    categories = await response.json();
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        // Rendering functions
+        function renderNotes() {
+            const grid = document.getElementById('notesGrid');
+            const filteredNotes = getFilteredNotes();
+
+            if (filteredNotes.length === 0) {
+                grid.innerHTML = '<div style="text-align: center; color: #7f8c8d; font-size: 1.2rem; margin-top: 2rem;">No notes found</div>';
+                return;
+            }
+
+            grid.innerHTML = filteredNotes.map(note => {
+                const category = categories.find(c => c.id == note.category_id || c.id == note.categoryId);
+                const tags = Array.isArray(note.tags) ? note.tags : 
+                           (typeof note.tags === 'string' ? JSON.parse(note.tags || '[]') : []);
+                
+                return `
+                    <div class="note-card ${note.is_pinned || note.isPinned ? 'pinned' : ''} ${note.is_favorite || note.isFavorite ? 'favorite' : ''}" 
+                         onclick="editNote(${note.id})">
+                        <div class="note-header">
+                            <div>
+                                <h3 class="note-title">${escapeHtml(note.title)}</h3>
+                                ${category ? `<div class="note-category" style="background: ${category.color}">
+                                    <span class="category-color" style="background: ${category.color}"></span>
+                                    ${escapeHtml(category.name)}
+                                </div>` : ''}
+                            </div>
+                            <div class="note-buttons">
+                                <button class="btn-icon btn-secondary" onclick="event.stopPropagation(); toggleFavorite(${note.id})" title="Toggle Favorite">
+                                    ${note.is_favorite || note.isFavorite ? '❤️' : '🤍'}
+                                </button>
+                                <button class="btn-icon btn-danger" onclick="event.stopPropagation(); deleteNote(${note.id})" title="Delete">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        <div class="note-content">${escapeHtml((note.content || '').substring(0, 200))}${note.content && note.content.length > 200 ? '...' : ''}</div>
+                        ${tags.length > 0 ? `<div class="tags">${tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
+                        <div class="note-actions">
+                            <div class="note-date">${formatDate(note.created_at || note.created || note.updated_at || note.updated)}</div>
+                            <div class="note-buttons">
+                                ${note.is_pinned || note.isPinned ? '<span title="Pinned">📌</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateCounts();
+        }
+
+        function renderCategories() {
+            const list = document.getElementById('categoriesList');
+            const select = document.getElementById('noteCategory');
+            
+            // Clear existing categories (keep default filters)
+            const defaultItems = list.querySelectorAll('.filter-item');
+            list.innerHTML = '';
+            defaultItems.forEach(item => list.appendChild(item));
+
+            // Clear select options (keep "No Category")
+            select.innerHTML = '<option value="">No Category</option>';
+
+            // Add categories
+            categories.forEach(category => {
+                // Add to sidebar
+                const categoryItem = document.createElement('div');
+                categoryItem.className = 'category-item';
+                categoryItem.setAttribute('data-filter', `category-${category.id}`);
+                categoryItem.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <span class="category-color" style="background: ${category.color}"></span>
+                        ${escapeHtml(category.name)}
+                    </div>
+                    <span>${notes.filter(n => (n.category_id || n.categoryId) == category.id).length}</span>
+                `;
+                categoryItem.addEventListener('click', () => setFilter(`category-${category.id}`));
+                list.appendChild(categoryItem);
+
+                // Add to select
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                select.appendChild(option);
+            });
+        }
+
+        function getFilteredNotes() {
+            let filtered = notes;
+
+            // Apply filter
+            if (currentFilter === 'favorites') {
+                filtered = filtered.filter(n => n.is_favorite || n.isFavorite);
+            } else if (currentFilter === 'archived') {
+                filtered = filtered.filter(n => n.is_archived || n.isArchived);
+            } else if (currentFilter.startsWith('category-')) {
+                const categoryId = currentFilter.replace('category-', '');
+                filtered = filtered.filter(n => (n.category_id || n.categoryId) == categoryId);
+            } else {
+                // 'all' - show non-archived notes
+                filtered = filtered.filter(n => !(n.is_archived || n.isArchived));
+            }
+
+            // Apply search
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            if (search) {
+                filtered = filtered.filter(n => 
+                    n.title.toLowerCase().includes(search) || 
+                    (n.content || '').toLowerCase().includes(search) ||
+                    (Array.isArray(n.tags) ? n.tags : JSON.parse(n.tags || '[]')).some(tag => 
+                        tag.toLowerCase().includes(search)
+                    )
+                );
+            }
+
+            return filtered;
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-item, .category-item').forEach(item => {
+                item.classList.toggle('active', item.getAttribute('data-filter') === filter);
+            });
+            renderNotes();
+        }
+
+        function filterNotes() {
+            renderNotes();
+        }
+
+        function updateCounts() {
+            document.getElementById('allNotesCount').textContent = notes.filter(n => !(n.is_archived || n.isArchived)).length;
+            document.getElementById('favoritesCount').textContent = notes.filter(n => n.is_favorite || n.isFavorite).length;
+            document.getElementById('archivedCount').textContent = notes.filter(n => n.is_archived || n.isArchived).length;
+        }
+
+        // Modal functions
+        function showNoteModal(noteId = null) {
+            editingNote = noteId;
+            const modal = document.getElementById('noteModal');
+            const title = document.getElementById('noteModalTitle');
+            
+            if (noteId) {
+                const note = notes.find(n => n.id == noteId);
+                if (!note) return;
+                
+                title.textContent = 'Edit Note';
+                document.getElementById('noteTitle').value = note.title;
+                document.getElementById('noteContent').value = note.content || '';
+                document.getElementById('noteCategory').value = note.category_id || note.categoryId || '';
+                document.getElementById('notePinned').checked = note.is_pinned || note.isPinned || false;
+                
+                const tags = Array.isArray(note.tags) ? note.tags : JSON.parse(note.tags || '[]');
+                document.getElementById('noteTags').value = tags.join(', ');
+            } else {
+                title.textContent = 'New Note';
+                document.getElementById('noteForm').reset();
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function closeNoteModal() {
+            document.getElementById('noteModal').classList.remove('show');
+            editingNote = null;
+        }
+
+        function editNote(noteId) {
+            showNoteModal(noteId);
+        }
+
+        async function saveNote(e) {
+            e.preventDefault();
+            
+            const noteData = {
+                title: document.getElementById('noteTitle').value,
+                content: document.getElementById('noteContent').value,
+                categoryId: document.getElementById('noteCategory').value || null,
+                isPinned: document.getElementById('notePinned').checked,
+                tags: document.getElementById('noteTags').value.split(',').map(t => t.trim()).filter(t => t)
+            };
+
+            try {
+                const url = editingNote ? `/api/notes/${editingNote}` : '/api/notes';
+                const method = editingNote ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(noteData)
+                });
+
+                if (response.ok) {
+                    closeNoteModal();
+                    await loadNotes();
+                    renderNotes();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Failed to save note');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            }
+        }
+
+        async function deleteNote(noteId) {
+            if (!confirm('Are you sure you want to delete this note?')) return;
+
+            try {
+                const response = await fetch(`/api/notes/${noteId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    await loadNotes();
+                    renderNotes();
+                } else {
+                    alert('Failed to delete note');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            }
+        }
+
+        async function toggleFavorite(noteId) {
+            const note = notes.find(n => n.id == noteId);
+            if (!note) return;
+
+            const isFavorite = !(note.is_favorite || note.isFavorite);
+
+            try {
+                const response = await fetch(`/api/notes/${noteId}/favorite`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ isFavorite })
+                });
+
+                if (response.ok) {
+                    await loadNotes();
+                    renderNotes();
+                }
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+            }
+        }
+
+        // Category functions
+        function showCategoryModal() {
+            document.getElementById('categoryModal').classList.add('show');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.remove('show');
+            document.getElementById('categoryForm').reset();
+        }
+
+        async function saveCategory(e) {
+            e.preventDefault();
+            
+            const categoryData = {
+                name: document.getElementById('categoryName').value,
+                color: document.getElementById('categoryColor').value,
+                description: document.getElementById('categoryDescription').value
+            };
+
+            try {
+                const response = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(categoryData)
+                });
+
+                if (response.ok) {
+                    closeCategoryModal();
+                    await loadCategories();
+                    renderCategories();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Failed to save category');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            }
+        }
+
+        // Admin functions
+        async function showAdminPanel() {
+            try {
+                const response = await fetch('/api/admin/dashboard', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const stats = await response.json();
+                    renderAdminPanel(stats);
+                    document.getElementById('adminModal').classList.add('show');
+                } else {
+                    alert('Failed to load admin panel');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            }
+        }
+
+        function renderAdminPanel(stats) {
+            const content = document.getElementById('adminContent');
+            content.innerHTML = `
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.totalUsers}</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.totalNotes}</div>
+                        <div class="stat-label">Total Notes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.totalCategories}</div>
+                        <div class="stat-label">Total Categories</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.activeUsers}</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <h4>Recent Notes</h4>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                            ${stats.recentNotes.map(note => `
+                                <div style="padding: 0.5rem; border-bottom: 1px solid var(--border-color);">
+                                    <strong>${escapeHtml(note.title)}</strong><br>
+                                    <small>by ${escapeHtml(note.username)} - ${formatDate(note.created_at)}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>Recent Users</h4>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                            ${stats.recentUsers.map(user => `
+                                <div style="padding: 0.5rem; border-bottom: 1px solid var(--border-color);">
+                                    <strong>${escapeHtml(user.username)}</strong><br>
+                                    <small>${escapeHtml(user.email)} - ${formatDate(user.created_at)}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('show');
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+            if (diffDays < 365) return `${Math.ceil(diffDays / 30)} months ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('show');
+                editingNote = null;
+            }
+        });
+    </script>
+</body>
+</html>
